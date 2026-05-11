@@ -1,40 +1,29 @@
-name: "release"
-
+name: release
 on:
   push:
     tags:
       - 'v*'
 
 jobs:
-  publish:
+  build:
+    runs-on: windows-latest
     permissions:
       contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [windows-latest]
-
-    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: install Rust stable
+      - name: install Rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: install frontend dependencies
+      - name: install dependencies
         run: npm install
-
-      - uses: tauri-apps/tauri-action@v0
+      - name: build app
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
           releaseName: "PorciControl Pro v__VERSION__"
-          releaseBody: "Instalador para Windows generado automáticamente."
           releaseDraft: true
           prerelease: false
